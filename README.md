@@ -1,7 +1,8 @@
-<img src="Logo-GE-I.png" align="left" width="100" height="100">  
+<img src="Logo-GE-I.png" align="left" width="120" height="120">  
 
 # Asset Game Jam
 Raccoglitore per gli asset delle Game Jam di Godot Engine - Italia  
+<br/>  
   
 In questa repository potete recuperare gli asset utilizzati nelle Game Jam di Godot Engine Italia.  
 | Game Jam | Periodo | Asset |
