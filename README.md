@@ -1,3 +1,9 @@
+<p align="right">
+  <a href="https://discord.gg/7YuUqJB">
+    <img src="https://github.com/fenix-hub/ColoredBadges/blob/master/svg/social/discord.svg" alt="discord" style="vertical-align:top margin:6px 4px">
+  </a>
+</p>
+
 <img src="Logo-GE-I.png" align="left" width="120" height="120">  
 
 # Asset Game Jam
