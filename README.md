@@ -1,3 +1,5 @@
+<img src="Logo-GE-I.png" align="left" width="100" height="100">  
+
 # Asset Game Jam
 Raccoglitore per gli asset delle Game Jam di Godot Engine - Italia  
   
