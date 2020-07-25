@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/sfx_waveplay-old_game-fx-rev.wav-5b5c1920becd03aec3303e7ec1e03def.sample"
+
+[deps]
+
+source_file="res://intro_scene/sfx_waveplay-old_game-fx-rev.wav"
+dest_files=[ "res://.import/sfx_waveplay-old_game-fx-rev.wav-5b5c1920becd03aec3303e7ec1e03def.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=true
+edit/normalize=true
+edit/loop=false
+compress/mode=0

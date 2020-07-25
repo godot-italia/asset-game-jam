@@ -1,0 +1,496 @@
+[gd_scene load_steps=22 format=2]
+
+[ext_resource path="res://intro_scene/sfx_cinematic-drum-hit.wav" type="AudioStream" id=1]
+[ext_resource path="res://intro_scene/NormalMap2.jpg" type="Texture" id=2]
+[ext_resource path="res://intro_scene/Logo-GE-I.png" type="Texture" id=3]
+[ext_resource path="res://intro_scene/CreteRound-Regular.otf" type="DynamicFontData" id=4]
+[ext_resource path="res://intro_scene/Logo_jam.png" type="Texture" id=5]
+[ext_resource path="res://intro_scene/glitch-effect.png" type="Texture" id=6]
+[ext_resource path="res://intro_scene/sfx_waveplay-old_game-fx-rev.wav" type="AudioStream" id=7]
+
+[sub_resource type="GDScript" id=1]
+script/source = "#=========================================================#
+#                       INTRO SCENE
+#             For the Godot Engine - Italia
+#                 Game Jam #1 - Fall 2019
+#
+# intro sounds from RobinHood86, waveplay_old
+# https://freesound.org/people/Robinhood76/sounds/177126/
+# https://freesound.org/people/waveplay_old/sounds/246478/
+#=========================================================#
+
+extends Control
+
+func _ready():
+	# set the mouse cursor hidden for the intro scene
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	
+	# set the empty background
+	$\"GE-I\".visible   = false
+	$jam_logo.visible = false
+	$title.visible    = false
+	
+	# start the animations for the intro at the end of the splash screen timer
+	$intro_anim/tmr_splashscreen.wait_time = 1.5
+	$intro_anim/tmr_splashscreen.start()
+	
+	#connect the finished animation of intro signal to _go_to_the_main_scene
+	$intro_anim.connect(\"animation_finished\",self,\"_go_to_the_main_scene\")
+
+func play_animations():
+	$intro_anim.play(\"intro\")
+	$jam_logo/glitch_anim.play(\"glitch\")
+	
+	# set the nodes visible, they will be modulated by the animations
+	yield(get_tree(),\"idle_frame\")
+	$\"GE-I\".visible   = true
+	$jam_logo.visible = true
+	$title.visible    = true
+
+func _go_to_the_main_scene(val):
+	# \"animation finished\" signal come with a variable unused here
+	
+	### TODO
+	
+	# go to the main scene
+	pass
+
+func _on_tmr_splashscreen_timeout():
+	play_animations()
+
+
+#func _input(event):
+#	if event is InputEventKey:
+#		if event.is_pressed() and event.scancode == KEY_SPACE:
+#			play_animations()
+
+"
+
+[sub_resource type="Animation" id=2]
+resource_name = "intro"
+length = 6.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("intro_sound:playing")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 3.7 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("jam_logo:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.6, 1, 1.2, 5.3 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0.415686 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ) ]
+}
+
+[sub_resource type="Shader" id=3]
+code = "//==============================================================//
+// Dario \"iRad\" De Vita
+// for | Godot Engine - Italia | Game Jam #1 - Fall 2019
+//==============================================================//
+
+shader_type canvas_item;
+
+uniform vec2  canvasSize  = vec2(1024.0,600.0);
+uniform vec2  mousePos2d  = vec2(250.0,250.0);
+uniform float mousePosX   : hint_range (0.0 , 1024.0) = 250.0;
+uniform float mousePosY   : hint_range (0.0 ,  600.0) = 250.0;
+
+uniform float mouseHeight : hint_range (0.0 , 50.0) = 10.0;
+uniform float lightSpread : hint_range (0.5 , 50.0) = 10.0;
+uniform vec4  lightColor  : hint_color;
+
+void fragment() {
+	vec3 mousePos  = vec3(mousePosX,mousePosY,mouseHeight);
+	vec3 fragPos   = vec3(canvasSize.x*SCREEN_UV.x , canvasSize.y*(1.0-SCREEN_UV.y), 0.0);
+	vec3 directVec = normalize(mousePos - fragPos);
+	
+	vec3 disp = normalize(texture(TEXTURE,UV).rgb*2.0-1.0);
+	float dispAmt = dot(directVec,disp);
+	float lightAmt = 1.0/sqrt(distance(mousePos,fragPos)/lightSpread);
+	COLOR = vec4(lightAmt*dispAmt)*lightColor;
+}"
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 3 )
+shader_param/canvasSize = Vector2( 1024, 600 )
+shader_param/mousePos2d = Vector2( 250, 250 )
+shader_param/mousePosX = 414.712
+shader_param/mousePosY = 174.504
+shader_param/mouseHeight = 14.1872
+shader_param/lightSpread = 19.6628
+shader_param/lightColor = Color( 1, 0, 0, 1 )
+
+[sub_resource type="GDScript" id=5]
+script/source = "#======================================#
+# The following code edits the shader
+# parameters to animate the light
+# on the background
+#======================================#
+
+extends TextureRect
+
+func _ready():
+	material.set(\"shader_param/canvasSize\" ,get_viewport_rect().size)
+	connect(\"item_rect_changed\",self,\"adapt_shader_to_viewport\")
+
+func adapt_shader_to_viewport():
+	material.set(\"shader_param/canvasSize\" ,get_viewport_rect().size)
+
+func _process(delta):
+	# set the light position in the viewport
+	material.set(\"shader_param/mousePos\" ,get_local_mouse_position())
+	material.set(\"shader_param/mousePosX\",get_local_mouse_position().x)
+	material.set(\"shader_param/mousePosY\",get_global_mouse_position().y)
+
+func _input(event):
+	if event is InputEventMouseButton:
+		if Input.is_mouse_button_pressed(BUTTON_WHEEL_DOWN):
+			var lightSpread = material.get(\"shader_param/lightSpread\")
+			material.set(\"shader_param/lightSpread\", max(0.5 , lightSpread*0.75) )
+		
+		elif Input.is_mouse_button_pressed(BUTTON_WHEEL_UP):
+			var lightSpread = material.get(\"shader_param/lightSpread\")
+			material.set(\"shader_param/lightSpread\", min(200 , lightSpread*1.5) )
+	
+		elif Input.is_mouse_button_pressed(BUTTON_LEFT):
+			#shader light goes closer to the background when mouse left clicked
+			$tween_light.stop_all()
+			$tween_light.interpolate_property(material,\"shader_param/mouseHeight\",get(\"shader_param/mouseHeight\"),5,0.3,Tween.TRANS_EXPO,Tween.EASE_OUT)
+			$tween_light.start()
+		elif Input.is_mouse_button_pressed(BUTTON_RIGHT):
+			#shader light goes higher from the background when mouse right clicked
+			$tween_light.stop_all()
+			$tween_light.interpolate_property(material,\"shader_param/mouseHeight\",get(\"shader_param/mouseHeight\"),30,0.3,Tween.TRANS_EXPO,Tween.EASE_OUT)
+			$tween_light.start()
+		elif not event.is_pressed():
+			#when any button is released the light goes back to mid air level
+			$tween_light.stop_all()
+			$tween_light.interpolate_property(material,\"shader_param/mouseHeight\",get(\"shader_param/mouseHeight\"),12,0.3,Tween.TRANS_ELASTIC,Tween.EASE_OUT)
+			$tween_light.start()
+"
+
+[sub_resource type="Animation" id=6]
+resource_name = "color_change"
+length = 7.0
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:material:shader_param/lightColor")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1.6, 2.7, 4.2, 5.2, 6.6 ),
+"transitions": PoolRealArray( 1, 1, 0.466516, 0.466516, 0.466516, 0.466516 ),
+"update": 0,
+"values": [ Color( 0.317647, 0.141176, 0.870588, 1 ), Color( 0.317647, 0.141176, 0.870588, 1 ), Color( 1, 0, 0, 1 ), Color( 1, 0, 0, 1 ), Color( 0.0862745, 0.945098, 0.0588235, 1 ), Color( 0.0862745, 0.945098, 0.0588235, 1 ) ]
+}
+
+[sub_resource type="Animation" id=7]
+resource_name = "light_anim"
+length = 5.0
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:material:shader_param/mousePosX")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1.5 ),
+"transitions": PoolRealArray( 0.68302, 0.812252 ),
+"update": 0,
+"values": [ 153.6, 809.6 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:material:shader_param/mousePosY")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 1.5 ),
+"transitions": PoolRealArray( 1.62451, 1.62451 ),
+"update": 0,
+"values": [ 467.5, 373.75 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath(".:material:shader_param/mouseHeight")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 1.5 ),
+"transitions": PoolRealArray( 0.466517, 1.31951 ),
+"update": 0,
+"values": [ 11.25, 14.375 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath(".:material:shader_param/lightSpread")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 1.5 ),
+"transitions": PoolRealArray( 1.7411, 1.31951 ),
+"update": 0,
+"values": [ 19.282, 20.056 ]
+}
+
+[sub_resource type="DynamicFont" id=8]
+size = 30
+font_data = ExtResource( 4 )
+
+[sub_resource type="Theme" id=9]
+default_font = SubResource( 8 )
+
+[sub_resource type="Shader" id=10]
+code = "//==================================================================================================//
+// https://www.reddit.com/r/godot/comments/84nglt/godot_shader_effect_breakdown_beginners_glitch/
+// Godot Shader Effect Breakdown
+// by Stein Codes
+//==================================================================================================//
+
+shader_type canvas_item;
+
+uniform float displace_amount : hint_range (0.0 , 0.05) = 0.0;
+uniform float aberration_x    : hint_range (0.0 , 0.05) = 0.0;
+uniform float aberration_y    : hint_range (0.0 , 0.05) = 0.0;
+
+void fragment (){
+	vec4 disp  = texture(TEXTURE,UV);
+	vec2 newUV = SCREEN_UV + disp.xy * displace_amount;
+	COLOR.r = texture(SCREEN_TEXTURE,newUV - vec2(aberration_x,aberration_y)).r;
+	COLOR.g = texture(SCREEN_TEXTURE,newUV).g;
+	COLOR.b = texture(SCREEN_TEXTURE,newUV + vec2(aberration_x,aberration_y)).b;
+}"
+
+[sub_resource type="ShaderMaterial" id=11]
+shader = SubResource( 10 )
+shader_param/displace_amount = 0.0
+shader_param/aberration_x = 0.0
+shader_param/aberration_y = 0.0
+
+[sub_resource type="Animation" id=12]
+resource_name = "glitch"
+length = 7.0
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("glitch:material:shader_param/displace_amount")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 2.1, 2.2, 2.3, 2.35, 3.7, 3.8, 3.85, 4, 4.1, 4.15, 4.3, 4.35, 4.6, 4.7, 4.75 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0.0, 0.0, 0.008, 0.0, 0.0, 0.008, 0.0, 0.0, 0.008, 0.0, 0.033, 0.0, 0.0, 0.023, 0.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("glitch:material:shader_param/aberration_x")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 2.1, 2.3, 2.35, 3.8, 3.85, 4.1, 4.15, 4.3, 4.35, 4.7, 4.75 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0.0, 0.005, 0.0, 0.005, 0.0, 0.005, 0.0, 0.009, 0.0, 0.005, 0.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("glitch:material:shader_param/aberration_y")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 2.1, 2.3, 2.35, 3.8, 3.85, 4.1, 4.15, 4.3, 4.35, 4.7, 4.75 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0.0, 0.007, 0.0, 0.007, 0.0, 0.007, 0.0, 0.0, 0.0, 0.007, 0.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("glitch_sfx:playing")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 2.15, 2.4, 3.75, 4.65 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ false, true, false, true, false ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("../title:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 2.15 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ false, true ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("../GE-I/logo:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0, 3.75 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ false, true ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("../GE-I/label1:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0, 4.05 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ false, true ]
+}
+
+[sub_resource type="DynamicFont" id=13]
+size = 60
+font_data = ExtResource( 4 )
+
+[sub_resource type="Theme" id=14]
+default_font = SubResource( 13 )
+
+[node name="intro_scene" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = SubResource( 1 )
+
+[node name="intro_sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 1 )
+
+[node name="intro_anim" type="AnimationPlayer" parent="."]
+anims/intro = SubResource( 2 )
+
+[node name="tmr_splashscreen" type="Timer" parent="intro_anim"]
+one_shot = true
+
+[node name="bg_color" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="bg_light" type="TextureRect" parent="."]
+editor/display_folded = true
+material = SubResource( 4 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 2 )
+stretch_mode = 2
+script = SubResource( 5 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="light_anim" type="AnimationPlayer" parent="bg_light"]
+autoplay = "color_change"
+anims/color_change = SubResource( 6 )
+anims/light_anim = SubResource( 7 )
+
+[node name="tween_light" type="Tween" parent="bg_light"]
+
+[node name="GE-I" type="Control" parent="."]
+editor/display_folded = true
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -169.0
+margin_top = 29.1504
+margin_right = 169.0
+margin_bottom = 122.15
+
+[node name="logo" type="TextureRect" parent="GE-I"]
+margin_right = 72.0
+margin_bottom = 72.0
+texture = ExtResource( 3 )
+expand = true
+stretch_mode = 6
+
+[node name="label1" type="Label" parent="GE-I"]
+margin_left = 76.0
+margin_right = 334.0
+margin_bottom = 72.0
+rect_min_size = Vector2( 0, 72 )
+theme = SubResource( 9 )
+text = "Godot Engine - Italia"
+align = 1
+valign = 1
+
+[node name="jam_logo" type="TextureRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -104.0
+margin_top = -99.0
+margin_right = 103.0
+margin_bottom = 100.0
+texture = ExtResource( 5 )
+expand = true
+stretch_mode = 6
+
+[node name="glitch" type="TextureRect" parent="jam_logo"]
+material = SubResource( 11 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -62.0
+margin_top = -45.0
+margin_right = 62.0
+margin_bottom = 46.0
+texture = ExtResource( 6 )
+expand = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="glitch_anim" type="AnimationPlayer" parent="jam_logo"]
+anims/glitch = SubResource( 12 )
+
+[node name="glitch_sfx" type="AudioStreamPlayer" parent="jam_logo"]
+stream = ExtResource( 7 )
+
+[node name="title" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -371.0
+margin_top = -228.0
+margin_right = 371.0
+theme = SubResource( 14 )
+text = "Game Jam #1 - Fall 2019"
+align = 1
+valign = 1
+[connection signal="timeout" from="intro_anim/tmr_splashscreen" to="." method="_on_tmr_splashscreen_timeout"]
