@@ -15,3 +15,4 @@ In questa repository potete recuperare gli asset utilizzati nelle Game Jam di Go
 | ------------- | ------------- | ------------- |
 |Game Jam #1 - autunno|15 Settembre 2019 - 22 Settembre 2019|[Asset Game Jam #1](https://github.com/godot-italia/asset-game-jam/tree/master/Game%20Jam%20%231)|
 |Game Jam #2 - estate|5 Agosto 2020 - 8 Agosto 2020|[Asset Game Jam #2](https://github.com/godot-italia/asset-game-jam/tree/master/Game%20Jam%20%232)|
+|Game Jam #3 - autunno|30 Ottobre 2020 - 8 Novembre 2020|[Asset Game Jam #3](https://github.com/godot-italia/asset-game-jam/tree/master/Game%20Jam%20%233)|
