@@ -1,3 +1,3 @@
 Crediti:  
 - banner: *@QbieShay*
-- loghi meccaniche: *@kunaace*
+- loghi meccaniche: *[@izanesu_0](https://www.instagram.com/izanesu_0/?hl=it)*
