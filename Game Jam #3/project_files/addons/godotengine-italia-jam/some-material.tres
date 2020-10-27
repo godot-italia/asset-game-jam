@@ -1,0 +1,39 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=2]
+
+[ext_resource path="res://addons/godotengine-italia-jam/assets/front-leaves-mask.png" type="Texture" id=1]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform sampler2D noise;
+uniform sampler2D displacement_mask;
+uniform float uv_displacement = 0.1;
+uniform float time_multiplier = 0.3;
+
+void fragment(){
+	vec2 displaced_uv = UV;
+	
+//genType smoothstep(	genType edge0,
+// 	genType edge1,
+// 	genType x)
+	float displacement_factor = texture(displacement_mask, UV).r;
+	displacement_factor = displacement_factor * uv_displacement * texture(noise, UV + TIME * time_multiplier).r;
+	displaced_uv.x = displaced_uv.x - displacement_factor;
+	COLOR = texture(TEXTURE, displaced_uv);
+	//COLOR = vec4(1.0);
+}"
+
+[sub_resource type="OpenSimplexNoise" id=2]
+period = 150.3
+persistence = 0.133
+
+[sub_resource type="NoiseTexture" id=3]
+seamless = true
+noise = SubResource( 2 )
+
+[resource]
+shader = SubResource( 1 )
+shader_param/uv_displacement = 0.1
+shader_param/time_multiplier = 0.3
+shader_param/noise = SubResource( 3 )
+shader_param/displacement_mask = ExtResource( 1 )
