@@ -3,6 +3,7 @@
 - `banner.png/.jpg./.psd` is the banner related to the game jam
 - `logo.png/.jpg/.psd` is the logo related to the game jam. It is a smaller version of the banner
 - `project_files/` is the folder containing Godot Engine Project files that shall be used for Game Jam subscriptions (ready-to-use scenes, splashscreens, shaders, scripts, etc..)
+- `itch.io/` is the folder containing assets used on the itch.io page
 
 Credits:  
 - banner: *@QbieShay*
